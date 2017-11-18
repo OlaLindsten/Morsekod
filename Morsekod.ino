@@ -21,10 +21,12 @@ boolean myBool = false;      //Variable that stops the for loop
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;       //Declaring the pins to the display
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-unsigned int rows = 2;      //Declaring amount of rows on display
+const int rows = 2;         //Declaring amount of rows on display
 const int columns = 16;     //Declaring amount of columns
 
-int currentRow = 0;         //Get current row of display
+unsigned int rowNumber = 0; //Get current row
+
+int currentRow = 0;         //Get current space on the row
 int debug = 1;              //If we should print to console, 1 = yes (true), 0 = no (false)
 
 void setup() {
@@ -61,12 +63,20 @@ void loop() {
       if (timeHeld < 300) {                                  //Check if the button was held for less than 300 millis
         morseWord += ".";
         delay(50);
-      } else if (timeHeld >= 300 && timeHeld <= 800) {       //Check if the button is held between 300 and 8000 millis
+      } else if (timeHeld >= 300 && timeHeld <= 800) {       //Check if the button is held between 300 and 800 millis
         morseWord += "-";
         delay(50);
-      } else if (timeHeld > 800) {                           //Check if the button is held for over 8000 millis
+      } else if (timeHeld > 800 && timeHeld <= 1500) {                    //Check if the button is held for over 800 millis and less than 1500 millis
         lcd.print(" ");                                      //Print a space on the display
         currentRow++;                                        //Increase currentRow
+        myBool = false;
+        Serial.print("Space written");
+      }else if(timeHeld > 1500){
+        Serial.print("Erasing last letter");
+        currentRow--;
+        lcd.setCursor(currentRow, rowNumber);
+        lcd.print(" ");
+        lcd.setCursor(currentRow, rowNumber);
         myBool = false;
       }
       digitalWrite(ledPinG, LOW);                           //Turn the green LED off
@@ -78,16 +88,15 @@ void loop() {
     returnLetter = "";
     morseToLetters();
     lcd.print(returnLetter);
-    currentRow++;                                           //increase currentRow
+    currentRow++;                                                //increase currentRow
   }
-  Serial.print(rows);
-  if (currentRow == 16 && rows == 2) {                      //Switch when on the last space
-    rows ++;                                                //Add one to rows
-    currentRow = 0;                                         //Reset row
-    lcd.setCursor(0, rows);                                 //Jump down a line
-  }else if(currentRow == 17 && rows == 3){                  //Need to press an extra time for the lcd to clear
+  if (currentRow == 16 && rowNumber == 0) {                      //Switch when on the last space
+    rowNumber ++;                                                //Add one to rows
+    currentRow = 0;                                              //Reset row
+    lcd.setCursor(0, rowNumber);                                 //Jump down a line
+  }else if(currentRow == 17 && rowNumber == 1){                  //Need to press an extra time for the lcd to clear
     lcd.clear();
-    rows = 2;
+    rowNumber = 0;
     currentRow = 0;
   }
   previous = buttonState;               //Set previous to buttonState
