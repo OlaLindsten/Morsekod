@@ -43,7 +43,7 @@ void loop() {
   buttonState = digitalRead(buttonPin);                                              //Read the state of the button:
 
   if (buttonState == HIGH && previous == LOW && (millis() - firstPress) > 200) {     //If buttonState changes remember the start time
-    firstPress = millis();                                                           //Get currentRowrent time and set it to firstPress
+    firstPress = millis();                                                           //Get currentRow time and set it to firstPress
     digitalWrite(ledPinG, HIGH);                                                      //Turn on the LED
   }
 
